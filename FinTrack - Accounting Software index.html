@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrack - Smart Accounting Software for Modern Businesses</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            800: '#1a365d',
+                            900: '#0f172a',
+                        },
+                        primary: '#2563eb', // Blue 600
+                        primaryHover: '#1d4ed8', // Blue 700
+                        accent: '#14b8a6', // Teal 500
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Scroll Animation Classes */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-up.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Abstract Dashboard UI CSS for Mockup */
+        .dash-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            padding: 16px;
+        }
+        .skeleton-line {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .chart-bar {
+            background: linear-gradient(to top, #3b82f6, #60a5fa);
+            border-radius: 4px 4px 0 0;
+        }
+        
+        /* Hide sections for SPA routing */
+        .page-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex flex-col min-h-screen selection:bg-primary selection:text-white">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="navigate('home')">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl mr-3 shadow-lg shadow-blue-500/30">
+                        FT
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-navy-900">Fin<span class="text-primary">Track</span></span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" onclick="navigate('home')" class="nav-link text-slate-600 hover:text-primary font-medium transition-colors">Home</a>
+                    <a href="#" onclick="navigate('features')" class="nav-link text-slate-600 hover:text-primary font-medium transition-colors">Features</a>
+                    <a href="#" onclick="navigate('product')" class="nav-link text-slate-600 hover:text-primary font-medium transition-colors">Product</a>
+                    <a href="#" onclick="navigate('about')" class="nav-link text-slate-600 hover:text-primary font-medium transition-colors">About Us</a>
+                    <a href="#" onclick="navigate('blog')" class="nav-link text-slate-600 hover:text-primary font-medium transition-colors">Blog</a>
+                    <a href="#" onclick="navigate('contact')" class="nav-link text-slate-600 hover:text-primary font-medium transition-colors">Contact Us</a>
+                </div>
+
+                <!-- CTA Button Desktop -->
+                <div class="hidden md:flex">
+                    <button class="bg-navy-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg">
+                        Get Started
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-600 hover:text-navy-900 focus:outline-none p-2">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 absolute w-full left-0 top-20 shadow-lg">
+            <div class="px-4 pt-2 pb-6 space-y-2 text-center">
+                <a href="#" onclick="navigate('home')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-800 hover:bg-slate-50 hover:text-primary">Home</a>
+                <a href="#" onclick="navigate('features')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-800 hover:bg-slate-50 hover:text-primary">Features</a>
+                <a href="#" onclick="navigate('product')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-800 hover:bg-slate-50 hover:text-primary">Product</a>
+                <a href="#" onclick="navigate('about')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-800 hover:bg-slate-50 hover:text-primary">About Us</a>
+                <a href="#" onclick="navigate('blog')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-800 hover:bg-slate-50 hover:text-primary">Blog</a>
+                <a href="#" onclick="navigate('contact')" class="block px-3 py-3 rounded-md text-base font-medium text-slate-800 hover:bg-slate-50 hover:text-primary">Contact Us</a>
+                <button class="w-full mt-4 bg-primary text-white px-6 py-3 rounded-lg font-medium shadow-md">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow pt-20">
+
+        <!-- ==========================================
+             PAGE 1: HOME
+        =========================================== -->
+        <section id="home" class="page-section active">
+            <!-- Hero Section -->
+            <div class="relative overflow-hidden bg-white pb-20 pt-16 sm:pb-24 sm:pt-24 lg:pb-32 lg:pt-32">
+                <!-- Background decorative elements -->
+                <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-50 blur-3xl opacity-70 pointer-events-none"></div>
+                <div class="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full bg-teal-50/50 blur-3xl opacity-70 translate-x-1/2 pointer-events-none"></div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                    <div class="lg:grid lg:grid-cols-12 lg:gap-16 items-center">
+                        
+                        <!-- Hero Text -->
+                        <div class="lg:col-span-6 text-center lg:text-left fade-up">
+                            <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-primary text-sm font-semibold mb-6 border border-blue-100">
+                                <span class="flex h-2 w-2 rounded-full bg-primary mr-2"></span>
+                                New: AI-Powered Reconciliations
+                            </div>
+                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-900 leading-tight tracking-tight mb-6">
+                                Smart Accounting Software for <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Modern Businesses</span>
+                            </h1>
+                            <p class="text-lg sm:text-xl text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+                                Kelola keuangan, transaksi, laporan, dan operasional bisnis Anda dalam satu platform accounting yang mudah, cepat, dan aman.
+                            </p>
+                            <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                                <button class="bg-primary hover:bg-primaryHover text-white px-8 py-4 rounded-xl font-medium text-lg transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center">
+                                    Get Started Free
+                                    <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                                </button>
+                                <button onclick="navigate('features')" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-8 py-4 rounded-xl font-medium text-lg transition-all flex items-center justify-center">
+                                    Explore Features
+                                </button>
+                            </div>
+                            <div class="mt-10 flex items-center justify-center lg:justify-start space-x-6 text-sm text-slate-500">
+                                <div class="flex items-center"><i class="fas fa-check-circle text-accent mr-2"></i> No credit card req.</div>
+                                <div class="flex items-center"><i class="fas fa-check-circle text-accent mr-2"></i> 14-day free trial</div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Dashboard Mockup -->
+                        <div class="lg:col-span-6 mt-16 lg:mt-0 relative fade-up" style="transition-delay: 200ms;">
+                            <!-- Floating Card 1 -->
+                            <div class="absolute -left-8 top-12 z-20 animate-float bg-white p-4 rounded-xl shadow-xl border border-slate-100 flex items-center space-x-3 w-48">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                    <i class="fas fa-arrow-trend-up"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">Revenue</p>
+                                    <p class="text-sm font-bold text-slate-800">+24.8%</p>
+                                </div>
+                            </div>
+
+                            <!-- Floating Card 2 -->
+                            <div class="absolute -right-4 bottom-24 z-20 animate-float-delayed bg-white p-4 rounded-xl shadow-xl border border-slate-100 flex items-center space-x-3 w-52">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-500 font-medium">12 New Invoices</p>
+                                    <p class="text-sm font-bold text-slate-800">Pending Approval</p>
+                                </div>
+                            </div>
+
+                            <!-- Main Mockup Container -->
+                            <div class="relative rounded-2xl bg-slate-800 p-2 shadow-2xl overflow-hidden border border-slate-700 transform lg:rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
+                                <div class="flex items-center px-3 py-2 space-x-1.5 border-b border-slate-700">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <div class="ml-4 text-xs text-slate-400 font-mono">app.fintrack.com/dashboard</div>
+                                </div>
+                                <!-- App UI Canvas -->
+                                <div class="bg-slate-50 h-[400px] w-full rounded-b-xl flex overflow-hidden">
+                                    <!-- Sidebar Mock -->
+                                    <div class="w-16 sm:w-48 bg-white border-r border-slate-200 p-4 hidden sm:flex flex-col space-y-4">
+                                        <div class="h-6 w-24 bg-slate-200 rounded mb-4"></div>
+                                        <div class="h-8 bg-blue-50 rounded flex items-center px-2"><div class="w-4 h-4 rounded bg-primary mr-2"></div><div class="h-3 w-16 bg-primary/30 rounded"></div></div>
+                                        <div class="h-8 rounded flex items-center px-2"><div class="w-4 h-4 rounded bg-slate-200 mr-2"></div><div class="h-3 w-20 bg-slate-200 rounded"></div></div>
+                                        <div class="h-8 rounded flex items-center px-2"><div class="w-4 h-4 rounded bg-slate-200 mr-2"></div><div class="h-3 w-14 bg-slate-200 rounded"></div></div>
+                                    </div>
+                                    <!-- Main Content Mock -->
+                                    <div class="flex-1 p-6 overflow-hidden flex flex-col space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <div class="h-6 w-32 bg-slate-200 rounded"></div>
+                                            <div class="h-8 w-24 bg-primary rounded-lg"></div>
+                                        </div>
+                                        <!-- Stats Row -->
+                                        <div class="grid grid-cols-3 gap-4">
+                                            <div class="dash-card">
+                                                <div class="text-[10px] text-slate-400 uppercase font-bold mb-1">Total Revenue</div>
+                                                <div class="text-xl font-bold text-slate-800">Rp 124.5M</div>
+                                            </div>
+                                            <div class="dash-card">
+                                                <div class="text-[10px] text-slate-400 uppercase font-bold mb-1">Expenses</div>
+                                                <div class="text-xl font-bold text-slate-800">Rp 42.1M</div>
+                                            </div>
+                                            <div class="dash-card bg-gradient-to-br from-navy-900 to-primary text-white border-none">
+                                                <div class="text-[10px] text-blue-200 uppercase font-bold mb-1">Net Profit</div>
+                                                <div class="text-xl font-bold text-white">Rp 82.4M</div>
+                                            </div>
+                                        </div>
+                                        <!-- Chart Area Mock -->
+                                        <div class="dash-card flex-1 flex flex-col">
+                                            <div class="h-4 w-24 bg-slate-200 rounded mb-4"></div>
+                                            <div class="flex-1 border-b border-l border-slate-200 flex items-end justify-between px-2 pt-4 space-x-2">
+                                                <div class="w-1/6 h-[40%] chart-bar"></div>
+                                                <div class="w-1/6 h-[60%] chart-bar"></div>
+                                                <div class="w-1/6 h-[30%] chart-bar"></div>
+                                                <div class="w-1/6 h-[80%] chart-bar"></div>
+                                                <div class="w-1/6 h-[50%] chart-bar"></div>
+                                                <div class="w-1/6 h-[90%] chart-bar"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trusted By Section -->
+            <div class="border-y border-slate-200 bg-white py-10">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-up">
+                    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Dipercaya oleh ribuan bisnis di Indonesia</p>
+                    <div class="flex flex-wrap justify-center items-center gap-10 opacity-50 grayscale">
+                        <!-- Placeholder logos -->
+                        <div class="text-xl font-bold font-serif">TechCorp</div>
+                        <div class="text-xl font-bold italic">GlobalIndo</div>
+                        <div class="text-xl font-bold tracking-widest">NEXA</div>
+                        <div class="text-xl font-bold">BuildSpace</div>
+                        <div class="text-xl font-bold font-mono">RetailHub</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PAGE 2: FEATURES
+        =========================================== -->
+        <section id="features" class="page-section bg-slate-50 py-20 lg:py-28">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16 fade-up">
+                    <h2 class="text-primary font-semibold tracking-wide uppercase text-sm mb-3">Product Features</h2>
+                    <h3 class="text-3xl md:text-4xl font-bold text-navy-900 mb-6">Powerful Features for Your Business</h3>
+                    <p class="text-lg text-slate-600">Everything you need to manage your business finances efficiently, automated in one cloud platform.</p>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group">
+                        <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center text-primary text-2xl mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Accounting</h4>
+                        <p class="text-slate-600 leading-relaxed">Kelola seluruh transaksi keuangan, jurnal umum, dan pembukuan bisnis secara terstruktur dan standar akuntansi.</p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group" style="transition-delay: 100ms;">
+                        <div class="w-14 h-14 rounded-xl bg-teal-50 flex items-center justify-center text-accent text-2xl mb-6 group-hover:bg-accent group-hover:text-white transition-colors">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Invoicing</h4>
+                        <p class="text-slate-600 leading-relaxed">Buat, kustomisasi, kirim, dan kelola tagihan pelanggan dengan cepat. Dilengkapi pengingat otomatis.</p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group" style="transition-delay: 200ms;">
+                        <div class="w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center text-red-500 text-2xl mb-6 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Expense Management</h4>
+                        <p class="text-slate-600 leading-relaxed">Pantau, upload struk, dan kategorikan seluruh pengeluaran operasional bisnis dengan mudah.</p>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group">
+                        <div class="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 text-2xl mb-6 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Financial Reports</h4>
+                        <p class="text-slate-600 leading-relaxed">Hasilkan Laba Rugi, Neraca, dan berbagai laporan keuangan secara otomatis, akurat, dan real-time.</p>
+                    </div>
+
+                    <!-- Feature 5 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group" style="transition-delay: 100ms;">
+                        <div class="w-14 h-14 rounded-xl bg-green-50 flex items-center justify-center text-green-600 text-2xl mb-6 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Cash Flow</h4>
+                        <p class="text-slate-600 leading-relaxed">Visualisasikan dan pantau proyeksi arus kas masuk dan keluar untuk memastikan likuiditas bisnis yang sehat.</p>
+                    </div>
+
+                    <!-- Feature 6 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group" style="transition-delay: 200ms;">
+                        <div class="w-14 h-14 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600 text-2xl mb-6 group-hover:bg-yellow-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-boxes-stacked"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Inventory Management</h4>
+                        <p class="text-slate-600 leading-relaxed">Kelola multi-gudang, stok barang, pergerakan inventory, dan hitung HPP secara otomatis.</p>
+                    </div>
+                    
+                    <!-- Feature 7 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group">
+                        <div class="w-14 h-14 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500 text-2xl mb-6 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                            <i class="fas fa-building-columns"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Tax Management</h4>
+                        <p class="text-slate-600 leading-relaxed">Bantu mengelola perhitungan PPN, PPh, dan data pajak lainnya yang terintegrasi dengan transaksi.</p>
+                    </div>
+
+                    <!-- Feature 8 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group" style="transition-delay: 100ms;">
+                        <div class="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 text-2xl mb-6 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Customer & Supplier</h4>
+                        <p class="text-slate-600 leading-relaxed">Database kontak terpusat untuk mengelola riwayat transaksi, hutang, piutang per pelanggan atau supplier.</p>
+                    </div>
+
+                    <!-- Feature 9 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 fade-up group" style="transition-delay: 200ms;">
+                        <div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 text-2xl mb-6 group-hover:bg-navy-900 group-hover:text-white transition-colors">
+                            <i class="fas fa-shield-halved"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900 mb-3">Bank-Grade Security</h4>
+                        <p class="text-slate-600 leading-relaxed">Data dienkripsi dengan standar tinggi, backup harian otomatis, dan kontrol akses multi-user yang ketat.</p>
+                    </div>
+                </div>
+
+                <!-- Why Choose Us -->
+                <div class="mt-32 pt-20 border-t border-slate-200">
+                    <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
+                        <div class="mb-12 lg:mb-0 fade-up">
+                            <h3 class="text-3xl font-bold text-navy-900 mb-6">Why Choose Our Accounting Software?</h3>
+                            <p class="text-lg text-slate-600 mb-8">Dibangun untuk mengatasi kompleksitas keuangan, FinTrack memberikan pengalaman pengguna yang intuitif tanpa mengorbankan fungsionalitas profesional.</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary mt-1">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h5 class="text-slate-800 font-semibold">Easy to Use</h5>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary mt-1">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h5 class="text-slate-800 font-semibold">Real-Time Data</h5>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary mt-1">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h5 class="text-slate-800 font-semibold">Cloud Based</h5>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary mt-1">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h5 class="text-slate-800 font-semibold">Fast Performance</h5>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary mt-1">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h5 class="text-slate-800 font-semibold">Scalable</h5>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-primary mt-1">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h5 class="text-slate-800 font-semibold">Mobile Friendly</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative fade-up" style="transition-delay: 200ms;">
+                            <div class="aspect-square rounded-full bg-gradient-to-tr from-blue-100 to-teal-50 absolute -inset-4 blur-2xl opacity-50 z-0"></div>
+                            <div class="relative z-10 bg-navy-900 rounded-2xl p-8 shadow-2xl text-white">
+                                <i class="fas fa-quote-left text-4xl text-blue-500/50 mb-6"></i>
+                                <p class="text-xl leading-relaxed font-light mb-8">"Sejak beralih ke FinTrack, rekonsiliasi bank yang biasanya memakan waktu berhari-hari kini selesai dalam hitungan menit. Laporan keuangan selalu siap kapanpun dibutuhkan manajemen."</p>
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center font-bold mr-4">
+                                        AD
+                                    </div>
+                                    <div>
+                                        <h6 class="font-semibold">Andi Darmawan</h6>
+                                        <p class="text-sm text-blue-300">Finance Director, PT Maju Bersama</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PAGE 3: PRODUCT
+        =========================================== -->
+        <section id="product" class="page-section bg-white py-20 lg:py-28">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-20 fade-up">
+                    <h2 class="text-3xl md:text-5xl font-bold text-navy-900 mb-6">One Platform.<br>Complete Financial Management.</h2>
+                    <p class="text-lg text-slate-600">Jelajahi bagaimana antarmuka modern kami memudahkan pekerjaan akuntansi Anda sehari-hari.</p>
+                </div>
+
+                <!-- Section 1: Dashboard -->
+                <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-center mb-24 lg:mb-32 fade-up">
+                    <div class="order-2 lg:order-1 relative p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+                        <!-- Abstract Mockup -->
+                        <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+                            <div class="bg-slate-800 px-4 py-2 flex space-x-2">
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div><div class="w-2.5 h-2.5 rounded-full bg-slate-500"></div>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex justify-between mb-6">
+                                    <div class="h-4 w-32 bg-slate-200 rounded"></div>
+                                    <div class="h-6 w-20 bg-blue-100 rounded-full"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div class="h-20 bg-slate-50 rounded-lg border border-slate-100 p-3">
+                                        <div class="h-3 w-16 bg-slate-200 rounded mb-2"></div>
+                                        <div class="h-6 w-24 bg-primary/20 rounded"></div>
+                                    </div>
+                                    <div class="h-20 bg-slate-50 rounded-lg border border-slate-100 p-3">
+                                        <div class="h-3 w-16 bg-slate-200 rounded mb-2"></div>
+                                        <div class="h-6 w-24 bg-red-100 rounded"></div>
+                                    </div>
+                                </div>
+                                <div class="h-32 bg-slate-50 rounded-lg border border-slate-100 flex items-end justify-around pb-2 px-4">
+                                    <div class="w-8 bg-blue-200 rounded-t h-1/2"></div>
+                                    <div class="w-8 bg-blue-300 rounded-t h-3/4"></div>
+                                    <div class="w-8 bg-blue-400 rounded-t h-full"></div>
+                                    <div class="w-8 bg-blue-300 rounded-t h-2/3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-1 lg:order-2 mb-10 lg:mb-0">
+                        <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-primary text-xl mb-6">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-bold text-navy-900 mb-4">Executive Dashboard</h3>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-6">Dapatkan ringkasan kesehatan finansial bisnis Anda dalam satu layar. Pantau metrik utama, tren pendapatan, dan pengeluaran secara real-time tanpa perlu membuka banyak menu.</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center text-slate-700"><i class="fas fa-check text-accent mr-3"></i> Customizable widgets</li>
+                            <li class="flex items-center text-slate-700"><i class="fas fa-check text-accent mr-3"></i> Real-time data sync</li>
+                            <li class="flex items-center text-slate-700"><i class="fas fa-check text-accent mr-3"></i> Quick action shortcuts</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Section 2: Invoicing (Alternating) -->
+                <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-center mb-24 lg:mb-32 fade-up">
+                    <div class="mb-10 lg:mb-0">
+                        <div class="w-12 h-12 bg-teal-50 rounded-lg flex items-center justify-center text-accent text-xl mb-6">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-bold text-navy-900 mb-4">Professional Invoicing</h3>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-6">Tingkatkan citra profesional Anda dengan invoice yang didesain elegan. Buat, jadwalkan pengiriman otomatis, dan lacak status pembayaran agar arus kas tetap lancar.</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center text-slate-700"><i class="fas fa-check text-accent mr-3"></i> Payment links integration</li>
+                            <li class="flex items-center text-slate-700"><i class="fas fa-check text-accent mr-3"></i> Automated reminders</li>
+                            <li class="flex items-center text-slate-700"><i class="fas fa-check text-accent mr-3"></i> Multi-currency support</li>
+                        </ul>
+                    </div>
+                    <div class="relative p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+                        <!-- Abstract Mockup -->
+                        <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+                            <div class="flex justify-between border-b border-slate-100 pb-4 mb-4">
+                                <div>
+                                    <div class="h-6 w-24 bg-slate-800 rounded mb-2"></div>
+                                    <div class="h-3 w-32 bg-slate-200 rounded"></div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="h-4 w-20 bg-slate-200 rounded mb-2 ml-auto"></div>
+                                    <div class="h-6 w-32 bg-accent/20 rounded ml-auto"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-3 mb-6">
+                                <div class="h-8 bg-slate-50 rounded flex items-center justify-between px-3">
+                                    <div class="h-3 w-1/3 bg-slate-200 rounded"></div>
+                                    <div class="h-3 w-16 bg-slate-300 rounded"></div>
+                                </div>
+                                <div class="h-8 bg-slate-50 rounded flex items-center justify-between px-3">
+                                    <div class="h-3 w-1/4 bg-slate-200 rounded"></div>
+                                    <div class="h-3 w-16 bg-slate-300 rounded"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end border-t border-slate-100 pt-4">
+                                <div class="w-1/3 space-y-2">
+                                    <div class="flex justify-between"><div class="h-3 w-10 bg-slate-200 rounded"></div><div class="h-3 w-16 bg-slate-200 rounded"></div></div>
+                                    <div class="flex justify-between"><div class="h-3 w-12 bg-slate-200 rounded"></div><div class="h-3 w-16 bg-slate-200 rounded"></div></div>
+                                    <div class="flex justify-between pt-2 border-t border-slate-100"><div class="h-4 w-12 bg-slate-800 rounded"></div><div class="h-4 w-20 bg-primary rounded"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PAGE 4: ABOUT US
+        =========================================== -->
+        <section id="about" class="page-section">
+            <!-- Hero About -->
+            <div class="bg-navy-900 text-white py-24 relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center fade-up">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6">Helping Businesses Manage Finance Smarter</h1>
+                    <p class="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+                        Kami membangun solusi accounting digital yang memberdayakan bisnis untuk mengelola keuangan dengan lebih transparan, cepat, dan terukur.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white py-20 lg:py-28">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Mission & Vision -->
+                    <div class="grid md:grid-cols-2 gap-12 lg:gap-20 mb-24 fade-up">
+                        <div class="bg-slate-50 p-10 rounded-2xl border border-slate-100">
+                            <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-md shadow-blue-500/30">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-navy-900 mb-4">Our Mission</h3>
+                            <p class="text-slate-600 text-lg leading-relaxed">Memberikan teknologi accounting yang mudah digunakan, terjangkau, dan kaya fitur untuk membantu bisnis dari segala skala tumbuh secara berkelanjutan.</p>
+                        </div>
+                        <div class="bg-slate-50 p-10 rounded-2xl border border-slate-100">
+                            <div class="w-12 h-12 bg-accent text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-md shadow-teal-500/30">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-navy-900 mb-4">Our Vision</h3>
+                            <p class="text-slate-600 text-lg leading-relaxed">Menjadi standar ekosistem keuangan digital terpercaya bagi bisnis modern di Asia Tenggara, menghilangkan kompleksitas operasional finansial.</p>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="bg-gradient-to-r from-navy-900 to-blue-800 rounded-3xl p-12 text-white mb-24 fade-up shadow-xl">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                            <div>
+                                <div class="text-4xl lg:text-5xl font-bold mb-2 text-accent">5+</div>
+                                <div class="text-blue-100 font-medium">Years Experience</div>
+                            </div>
+                            <div>
+                                <div class="text-4xl lg:text-5xl font-bold mb-2 text-accent">1,500+</div>
+                                <div class="text-blue-100 font-medium">Active Businesses</div>
+                            </div>
+                            <div>
+                                <div class="text-4xl lg:text-5xl font-bold mb-2 text-accent">10k+</div>
+                                <div class="text-blue-100 font-medium">Daily Users</div>
+                            </div>
+                            <div>
+                                <div class="text-4xl lg:text-5xl font-bold mb-2 text-accent">99.9%</div>
+                                <div class="text-blue-100 font-medium">System Uptime</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Values -->
+                    <div class="text-center mb-16 fade-up">
+                        <h2 class="text-3xl font-bold text-navy-900 mb-4">Our Core Values</h2>
+                        <p class="text-slate-600 max-w-2xl mx-auto">Nilai-nilai yang mendasari setiap baris kode yang kami tulis dan setiap layanan yang kami berikan.</p>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6 fade-up">
+                        <div class="text-center p-6 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-16 h-16 mx-auto bg-blue-50 text-primary rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-lightbulb"></i></div>
+                            <h4 class="font-bold text-navy-900 mb-2">Innovation</h4>
+                        </div>
+                        <div class="text-center p-6 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-16 h-16 mx-auto bg-teal-50 text-accent rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-handshake"></i></div>
+                            <h4 class="font-bold text-navy-900 mb-2">Trust</h4>
+                        </div>
+                        <div class="text-center p-6 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-16 h-16 mx-auto bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-wand-magic-sparkles"></i></div>
+                            <h4 class="font-bold text-navy-900 mb-2">Simplicity</h4>
+                        </div>
+                        <div class="text-center p-6 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-16 h-16 mx-auto bg-slate-100 text-slate-700 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-lock"></i></div>
+                            <h4 class="font-bold text-navy-900 mb-2">Security</h4>
+                        </div>
+                        <div class="text-center p-6 bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="w-16 h-16 mx-auto bg-orange-50 text-orange-500 rounded-full flex items-center justify-center text-2xl mb-4"><i class="fas fa-arrow-up-right-dots"></i></div>
+                            <h4 class="font-bold text-navy-900 mb-2">Customer Success</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PAGE 5: BLOG
+        =========================================== -->
+        <section id="blog" class="page-section bg-slate-50 py-20 lg:py-28">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <!-- Blog List View -->
+                <div id="blog-list">
+                    <div class="text-center max-w-3xl mx-auto mb-16 fade-up">
+                        <h2 class="text-3xl md:text-5xl font-bold text-navy-900 mb-6">Accounting Insights & Business Tips</h2>
+                        <p class="text-lg text-slate-600">Pelajari cara mengelola keuangan, meningkatkan performa bisnis, dan strategi pertumbuhan dari para ahli kami.</p>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="flex flex-wrap justify-center gap-3 mb-12 fade-up">
+                        <button class="px-5 py-2 bg-navy-900 text-white rounded-full text-sm font-medium shadow-sm">All</button>
+                        <button class="px-5 py-2 bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary rounded-full text-sm font-medium transition-colors">Accounting</button>
+                        <button class="px-5 py-2 bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary rounded-full text-sm font-medium transition-colors">Finance</button>
+                        <button class="px-5 py-2 bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary rounded-full text-sm font-medium transition-colors">Business</button>
+                        <button class="px-5 py-2 bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary rounded-full text-sm font-medium transition-colors">Tax</button>
+                    </div>
+
+                    <!-- Blog Grid -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Article 1 -->
+                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-pointer fade-up" onclick="showBlogDetail()">
+                            <div class="h-48 bg-slate-200 overflow-hidden relative">
+                                <div class="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-transparent z-10"></div>
+                                <div class="w-full h-full bg-[url('https://placehold.co/600x400/e2e8f0/475569?text=Accounting+Software')] bg-cover bg-center group-hover:scale-105 transition-transform duration-500"></div>
+                            </div>
+                            <div class="p-6">
+                                <span class="text-xs font-semibold text-primary uppercase tracking-wider mb-2 block">Technology</span>
+                                <h3 class="text-xl font-bold text-navy-900 mb-3 group-hover:text-primary transition-colors line-clamp-2">5 Ways Accounting Software Can Improve Your Business</h3>
+                                <p class="text-slate-600 text-sm mb-4 line-clamp-3">Beralih dari pembukuan manual ke digital bukan hanya soal efisiensi, tapi juga akurasi dan skalabilitas bisnis jangka panjang.</p>
+                                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-xs font-bold text-white mr-2">AR</div>
+                                        <span class="text-sm font-medium text-slate-700">Arief Rahman</span>
+                                    </div>
+                                    <span class="text-xs text-slate-500">Oct 12, 2026</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Article 2 -->
+                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-pointer fade-up" style="transition-delay: 100ms;" onclick="showBlogDetail()">
+                            <div class="h-48 bg-slate-200 overflow-hidden relative">
+                                <div class="w-full h-full bg-[url('https://placehold.co/600x400/f8fafc/64748b?text=Cash+Flow')] bg-cover bg-center group-hover:scale-105 transition-transform duration-500"></div>
+                            </div>
+                            <div class="p-6">
+                                <span class="text-xs font-semibold text-accent uppercase tracking-wider mb-2 block">Finance</span>
+                                <h3 class="text-xl font-bold text-navy-900 mb-3 group-hover:text-primary transition-colors line-clamp-2">How to Manage Business Cash Flow Effectively</h3>
+                                <p class="text-slate-600 text-sm mb-4 line-clamp-3">Arus kas adalah urat nadi bisnis. Pelajari strategi praktis untuk memastikan uang masuk selalu lebih besar dari uang keluar.</p>
+                                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-xs font-bold text-white mr-2">MD</div>
+                                        <span class="text-sm font-medium text-slate-700">Maya Dian</span>
+                                    </div>
+                                    <span class="text-xs text-slate-500">Oct 08, 2026</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Article 3 -->
+                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-lg transition-all duration-300 group cursor-pointer fade-up" style="transition-delay: 200ms;" onclick="showBlogDetail()">
+                            <div class="h-48 bg-slate-200 overflow-hidden relative">
+                                <div class="w-full h-full bg-[url('https://placehold.co/600x400/e0f2fe/0369a1?text=Digital+Accounting')] bg-cover bg-center group-hover:scale-105 transition-transform duration-500"></div>
+                            </div>
+                            <div class="p-6">
+                                <span class="text-xs font-semibold text-primary uppercase tracking-wider mb-2 block">Business</span>
+                                <h3 class="text-xl font-bold text-navy-900 mb-3 group-hover:text-primary transition-colors line-clamp-2">Why Digital Accounting Is Important for Modern SMEs</h3>
+                                <p class="text-slate-600 text-sm mb-4 line-clamp-3">UMKM sering kali mengabaikan pembukuan. Padahal, data keuangan yang rapi adalah kunci untuk mendapatkan pendanaan.</p>
+                                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center text-xs font-bold text-white mr-2">DK</div>
+                                        <span class="text-sm font-medium text-slate-700">Dimas Kusuma</span>
+                                    </div>
+                                    <span class="text-xs text-slate-500">Oct 01, 2026</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Detail View (Simulated) -->
+                <div id="blog-detail" class="hidden max-w-4xl mx-auto">
+                    <button onclick="hideBlogDetail()" class="text-slate-500 hover:text-primary mb-8 flex items-center font-medium transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Blog
+                    </button>
+                    
+                    <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-4 block">Technology</span>
+                    <h1 class="text-3xl md:text-5xl font-bold text-navy-900 mb-6 leading-tight">5 Ways Accounting Software Can Improve Your Business</h1>
+                    
+                    <div class="flex items-center mb-8 border-b border-slate-200 pb-8">
+                        <div class="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-sm font-bold text-white mr-4">AR</div>
+                        <div>
+                            <p class="font-bold text-slate-800">Arief Rahman</p>
+                            <p class="text-sm text-slate-500">Oct 12, 2026 • 5 min read</p>
+                        </div>
+                    </div>
+
+                    <img src="https://placehold.co/1200x600/e2e8f0/475569?text=Accounting+Software+Mockup" alt="Blog Cover" class="w-full h-auto rounded-2xl mb-10 shadow-md">
+
+                    <div class="prose prose-lg prose-slate max-w-none">
+                        <p class="lead text-xl text-slate-600 mb-6">Di era digital ini, mengandalkan spreadsheet manual untuk mengelola keuangan bisnis bukan lagi pilihan yang cerdas. Risiko human error, data yang hilang, dan pelaporan yang lambat dapat menghambat pertumbuhan.</p>
+                        
+                        <h2 class="text-2xl font-bold text-navy-900 mt-10 mb-4">1. Otomatisasi Entri Data</h2>
+                        <p class="text-slate-600 mb-6">Salah satu manfaat terbesar adalah menghilangkan pekerjaan manual. Software modern dapat menarik data transaksi langsung dari bank, mengkategorikan pengeluaran secara cerdas, dan membuat jurnal secara otomatis.</p>
+
+                        <h2 class="text-2xl font-bold text-navy-900 mt-10 mb-4">2. Akses Real-Time darimana saja</h2>
+                        <p class="text-slate-600 mb-6">Sebagai aplikasi berbasis cloud, Anda tidak lagi terikat pada komputer kantor. Anda dapat mengecek saldo kas, mengirim invoice, atau menyetujui pengeluaran langsung dari smartphone saat sedang meeting di luar.</p>
+
+                        <div class="bg-blue-50 p-6 rounded-xl border-l-4 border-primary my-8">
+                            <p class="font-medium text-slate-800 italic">"Perusahaan yang beralih ke cloud accounting melaporkan peningkatan efisiensi proses keuangan hingga 40%."</p>
+                        </div>
+
+                        <p class="text-slate-600 mb-6">Jika Anda masih menggunakan metode tradisional, sekarang adalah saat yang tepat untuk mempertimbangkan transisi. Investasi pada software akuntansi akan terbayar dengan efisiensi waktu dan keputusan bisnis yang lebih baik.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             PAGE 6: CONTACT US
+        =========================================== -->
+        <section id="contact" class="page-section bg-white py-20 lg:py-28">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16 fade-up">
+                    <h2 class="text-3xl md:text-5xl font-bold text-navy-900 mb-6">Let's Talk About Your Business</h2>
+                    <p class="text-lg text-slate-600">Punya pertanyaan tentang FinTrack atau butuh bantuan memilih paket yang tepat? Tim spesialis kami siap membantu Anda.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-16 lg:gap-24">
+                    <!-- Contact Info -->
+                    <div class="fade-up">
+                        <div class="bg-slate-50 p-8 rounded-2xl border border-slate-100 mb-8">
+                            <h3 class="text-2xl font-bold text-navy-900 mb-6">Contact Information</h3>
+                            <div class="space-y-6">
+                                <div class="flex items-start">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-primary mt-1 mr-4 shrink-0">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-slate-500 font-medium mb-1">Email Us</p>
+                                        <p class="text-lg font-semibold text-slate-800">hello@fintrack.id</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center text-accent mt-1 mr-4 shrink-0">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-slate-500 font-medium mb-1">Call Us</p>
+                                        <p class="text-lg font-semibold text-slate-800">+62 811 2345 6789</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-500 mt-1 mr-4 shrink-0">
+                                        <i class="fas fa-location-dot"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-slate-500 font-medium mb-1">Visit Office</p>
+                                        <p class="text-base font-semibold text-slate-800 leading-relaxed">Jl. Jend. Sudirman Kav 21<br>Jakarta Selatan, 12920<br>Indonesia</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Map Placeholder -->
+                        <div class="h-64 bg-slate-200 rounded-2xl overflow-hidden relative border border-slate-100">
+                            <div class="absolute inset-0 bg-[url('https://placehold.co/800x400/e2e8f0/64748b?text=Map+Location')] bg-cover bg-center"></div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 lg:p-10 fade-up" style="transition-delay: 100ms;">
+                        <h3 class="text-2xl font-bold text-navy-900 mb-8">Send us a message</h3>
+                        <form onsubmit="event.preventDefault(); alert('Pesan berhasil dikirim. Tim kami akan segera menghubungi Anda.');">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                                    <input type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50 focus:bg-white" placeholder="John Doe" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                                    <input type="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50 focus:bg-white" placeholder="john@company.com" required>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Company Name</label>
+                                    <input type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50 focus:bg-white" placeholder="PT Maju Jaya">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+                                    <input type="tel" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50 focus:bg-white" placeholder="0812...">
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Subject</label>
+                                <select class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50 focus:bg-white">
+                                    <option>Sales Inquiry</option>
+                                    <option>Product Demo Request</option>
+                                    <option>Partnership</option>
+                                    <option>General Question</option>
+                                </select>
+                            </div>
+                            <div class="mb-8">
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Message</label>
+                                <textarea rows="4" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-slate-50 focus:bg-white resize-none" placeholder="How can we help you?" required></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-primary hover:bg-primaryHover text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-500/30">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             GLOBAL CALL TO ACTION
+        =========================================== -->
+        <section class="py-20 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-navy-900 via-blue-900 to-navy-900"></div>
+            <!-- Decorative circles -->
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-500 opacity-20 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-accent opacity-20 blur-3xl"></div>
+            
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center fade-up">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Ready to Simplify Your Accounting?</h2>
+                <p class="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Start managing your business finances smarter today. Bergabunglah dengan ribuan bisnis yang telah beralih ke FinTrack.</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button class="bg-white hover:bg-slate-50 text-navy-900 px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-lg">
+                        Get Started for Free
+                    </button>
+                    <button onclick="navigate('contact')" class="bg-transparent hover:bg-white/10 text-white border border-white/30 px-8 py-4 rounded-xl font-bold text-lg transition-all">
+                        Contact Sales
+                    </button>
+                </div>
+                <p class="text-sm text-blue-200 mt-6">No credit card required • 14 days free trial • Cancel anytime</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 pt-20 pb-10 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-16">
+                
+                <div class="col-span-2 lg:col-span-2">
+                    <div class="flex items-center mb-6">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-sm mr-3">FT</div>
+                        <span class="font-bold text-xl text-white">Fin<span class="text-primary">Track</span></span>
+                    </div>
+                    <p class="text-slate-400 mb-8 max-w-sm leading-relaxed">Software akuntansi modern yang didesain khusus untuk memudahkan operasional keuangan bisnis dan UMKM di era digital.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Product</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" onclick="navigate('features')" class="text-slate-400 hover:text-white transition-colors">Features</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Accounting</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Invoicing</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Reports</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Inventory</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Pricing</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Company</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" onclick="navigate('about')" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" onclick="navigate('blog')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" onclick="navigate('contact')" class="text-slate-400 hover:text-white transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Partners</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-wider">Resources</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">Tutorials</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition-colors">API Reference</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-slate-500 text-sm mb-4 md:mb-0">
+                    &copy; 2026 FinTrack. All Rights Reserved.
+                </p>
+                <div class="flex space-x-6 text-sm">
+                    <a href="#" class="text-slate-500 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-slate-500 hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="text-slate-500 hover:text-white transition-colors">Security</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // SPA Router logic
+        function navigate(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(pageId);
+            if(targetPage) {
+                targetPage.classList.add('active');
+            }
+
+            // Reset Blog view if navigating to blog
+            if(pageId === 'blog') {
+                document.getElementById('blog-list').classList.remove('hidden');
+                document.getElementById('blog-detail').classList.add('hidden');
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if(!mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+
+            // Update active state in nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-primary', 'font-bold');
+                link.classList.add('text-slate-600', 'font-medium');
+            });
+            event.currentTarget.classList.remove('text-slate-600', 'font-medium');
+            event.currentTarget.classList.add('text-primary', 'font-bold');
+
+            // Re-trigger animations
+            setTimeout(observeElements, 100);
+        }
+
+        // Blog Detail Logic
+        function showBlogDetail() {
+            document.getElementById('blog-list').classList.add('hidden');
+            document.getElementById('blog-detail').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function hideBlogDetail() {
+            document.getElementById('blog-list').classList.remove('hidden');
+            document.getElementById('blog-detail').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.replace('bg-white/80', 'bg-white/95');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.replace('bg-white/95', 'bg-white/80');
+            }
+        });
+
+        // Scroll Animation (Intersection Observer)
+        function observeElements() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target); // Only animate once
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-up').forEach(el => {
+                el.classList.remove('is-visible'); // Reset for re-triggering
+                observer.observe(el);
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial active nav item
+            document.querySelector('.nav-link').classList.add('text-primary', 'font-bold');
+            document.querySelector('.nav-link').classList.remove('text-slate-600');
+            observeElements();
+        });
+    </script>
+</body>
+</html>
